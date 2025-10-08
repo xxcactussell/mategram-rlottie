@@ -1,5 +1,4 @@
 add_subdirectory(freetype)
-add_subdirectory(pixman)
 add_subdirectory(stb)
 
 
@@ -13,7 +12,6 @@ target_sources(rlottie
         "${CMAKE_CURRENT_LIST_DIR}/vdrawhelper_common.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/vdrawhelper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/vdrawhelper_sse2.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/vdrawhelper_neon.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/vrle.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/vpath.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/vpathmesure.cpp"
