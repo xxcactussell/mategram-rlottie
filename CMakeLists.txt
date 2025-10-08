@@ -41,32 +41,28 @@ set(LOTTIE_MODULE_PATH "${CMAKE_SHARED_LIBRARY_PREFIX}rlottie-image-loader${CMAK
 configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/config.h.in config.h)
 
 target_include_directories(rlottie
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inc>
     PRIVATE
         "${CMAKE_CURRENT_BINARY_DIR}"
     )
 
 #declare common target compilation options
-if(MSVC)
+target_compile_options(rlottie
+                    PUBLIC
+                    PRIVATE
+                        -std=c++14
+                        -fno-exceptions
+                        -fno-unwind-tables
+                        -fno-asynchronous-unwind-tables
+                        -fno-rtti
+                        -Wall
+                        -fvisibility=hidden
+                    )
+
+#MSVC does not recognize these parameters
+if (NOT WIN32)
     target_compile_options(rlottie
                         PUBLIC
                         PRIVATE
-                            /std:c++14
-                            /EHs-c- # disable exceptions
-                            /GR- # disable RTTI
-                            /W3
-                        )
-else()
-    target_compile_options(rlottie
-                        PUBLIC
-                        PRIVATE
-                            -std=c++14
-                            -fno-exceptions
-                            -fno-unwind-tables
-                            -fno-asynchronous-unwind-tables
-                            -fno-rtti
-                            -Wall
-                            -fvisibility=hidden
                             -Wnon-virtual-dtor
                             -Woverloaded-virtual
                             -Wno-unused-parameter
@@ -75,28 +71,21 @@ endif()
 
 if (WIN32 AND NOT BUILD_SHARED_LIBS)
     target_compile_definitions(rlottie PUBLIC -DRLOTTIE_BUILD=0)
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 endif()
 
 #declare dependancy
 set( CMAKE_THREAD_PREFER_PTHREAD TRUE )
 find_package( Threads )
 
-if(WIN32)
-   set( OSSPEC_LIBS Shlwapi.lib )
-endif()
-
 target_link_libraries(rlottie
                     PUBLIC
                         "${CMAKE_THREAD_LIBS_INIT}"
-                        ${OSSPEC_LIBS}
                      )
 
 if (NOT APPLE AND NOT WIN32)
     target_link_libraries(rlottie
                         PRIVATE
-                            "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/rlottie.expmap"
+                            "-Wl,--version-script=${CMAKE_SOURCE_DIR}/rlottie.expmap"
                           )
 endif()
 
@@ -111,7 +100,7 @@ if (NOT LOTTIE_ASAN)
                             PUBLIC
                                  "-Wl, -undefined error"
                               )
-    elseif(NOT MSVC)
+    else()
         target_link_libraries(rlottie
                             PUBLIC
                                  "-Wl,--no-undefined"
@@ -139,15 +128,10 @@ if (NOT LIB_INSTALL_DIR)
     set (LIB_INSTALL_DIR "/usr/lib")
 endif (NOT LIB_INSTALL_DIR)
 
+
 #declare source and include files
 add_subdirectory(inc)
 add_subdirectory(src)
-add_subdirectory(example)
-
-if (LOTTIE_TEST)
-    enable_testing()
-    add_subdirectory(test)
-endif()
 
 SET(PREFIX ${CMAKE_INSTALL_PREFIX})
 SET(EXEC_DIR ${PREFIX})
@@ -202,7 +186,33 @@ install(FILES
 )
 
 
+add_library(jlottie SHARED lottie.cpp)
+add_library(jlz4 SHARED lz4/lz4.c)
+target_include_directories(jlottie
+        PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}"
+        )
+
+add_library(rlottie2gif SHARED gif/gif.cpp)
+target_include_directories(rlottie2gif
+        PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/gif"
+        )
+
+target_link_libraries(jlottie rlottie)
+target_link_libraries(jlottie jlz4)
+target_link_libraries(jlottie rlottie2gif)
+target_link_libraries( # Specifies the target library.
+        jlottie
+        -ljnigraphics
+        # Links the target library to the log library
+        # included in the NDK.
+        ${log-lib} )
+
+
+
 export(EXPORT rlottie-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/rlottieTargets.cmake NAMESPACE rlottie::)
 
 #Register package in user's package registry
 export(PACKAGE rlottie)
+

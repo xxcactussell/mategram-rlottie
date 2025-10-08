@@ -41,8 +41,8 @@ void VBitmap::Impl::reset(size_t width, size_t height, VBitmap::Format format)
     mOwnData = std::make_unique<uint8_t[]>(mStride * mHeight);
 }
 
-void VBitmap::Impl::reset(uint8_t *data, size_t width, size_t height,
-                          size_t bytesPerLine, VBitmap::Format format)
+void VBitmap::Impl::reset(uint8_t *data, size_t width, size_t height, size_t bytesPerLine,
+                          VBitmap::Format format)
 {
     mRoData = data;
     mWidth = uint32_t(width);
@@ -112,8 +112,8 @@ VBitmap::VBitmap(size_t width, size_t height, VBitmap::Format format)
     mImpl = rc_ptr<Impl>(width, height, format);
 }
 
-VBitmap::VBitmap(uint8_t *data, size_t width, size_t height,
-                 size_t bytesPerLine, VBitmap::Format format)
+VBitmap::VBitmap(uint8_t *data, size_t width, size_t height, size_t bytesPerLine,
+                 VBitmap::Format format)
 {
     if (!data || width <= 0 || height <= 0 || bytesPerLine <= 0 ||
         format == Format::Invalid)

@@ -250,16 +250,11 @@ void model::Gradient::populate(VGradientStops &stops, int frameNo)
     auto                  size = gradData.mGradient.size();
     float *               ptr = gradData.mGradient.data();
     int                   colorPoints = mColorPoints;
-    size_t                colorPointsSize = colorPoints * 4;
-    if (!ptr) return;
-    if (colorPoints < 0 || colorPointsSize > size) {  // for legacy bodymovin (ref: lottie-android)
+    if (colorPoints == -1) {  // for legacy bodymovin (ref: lottie-android)
         colorPoints = int(size / 4);
     }
-    auto   opacityArraySize = size - colorPointsSize;
-    if (opacityArraySize % 2 != 0) {
-        opacityArraySize = 0;
-    }
-    float *opacityPtr = ptr + colorPointsSize;
+    auto   opacityArraySize = size - colorPoints * 4;
+    float *opacityPtr = ptr + (colorPoints * 4);
     stops.clear();
     for (int i = 0; i < colorPoints; i++) {
         float        colorStop = ptr[0];
@@ -271,10 +266,6 @@ void model::Gradient::populate(VGradientStops &stops, int frameNo)
             stops.push_back(std::make_pair(colorStop, color.toColor()));
         }
         ptr += 4;
-    }
-
-    if (stops.empty()) {
-        stops.push_back(std::make_pair(0.0f, VColor(255, 255, 255, 255)));
     }
 }
 
@@ -367,8 +358,9 @@ std::vector<LayerInfo> model::Composition::layerInfoList() const
 
     for (auto it : mRootLayer->mChildren) {
         auto layer = static_cast<model::Layer *>(it);
-        result.emplace_back(layer->name(), layer->mInFrame, layer->mOutFrame);
+        result.emplace_back(layer->name(), layer->mInFrame, layer->mOutFrame, static_cast<std::underlying_type<model::Layer::Type>::type>(layer->mLayerType));
     }
 
     return result;
 }
+

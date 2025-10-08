@@ -30,9 +30,9 @@
 class LOTKeyPath {
 public:
     LOTKeyPath(const std::string &keyPath);
-    bool     matches(const std::string &key, uint32_t depth);
+    bool matches(const std::string &key, uint32_t depth);
     uint32_t nextDepth(const std::string key, uint32_t depth);
-    bool     fullyResolvesTo(const std::string key, uint32_t depth);
+    bool fullyResolvesTo(const std::string key, uint32_t depth);
 
     bool propagate(const std::string key, uint32_t depth)
     {

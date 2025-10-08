@@ -113,9 +113,7 @@ enum class Property {
     TrPosition,    /*!< Transform Position property of Layer and Group object , value type is rlottie::Point */
     TrScale,       /*!< Transform Scale property of Layer and Group object , value type is rlottie::Size. range[0 ..100] */
     TrRotation,    /*!< Transform Rotation property of Layer and Group object , value type is float. range[0 .. 360] in degrees*/
-    TrOpacity,     /*!< Transform Opacity property of Layer and Group object , value type is float [ 0 .. 100] */
-    TrimStart,     /*!< Trim Start property of Shape object , value type is float [ 0 .. 100] */
-    TrimEnd        /*!< Trim End property of Shape object , value type is rlottie::Point [ 0 .. 100] */
+    TrOpacity      /*!< Transform Opacity property of Layer and Group object , value type is float [ 0 .. 100] */
 };
 
 struct Color_Type{};
@@ -265,7 +263,7 @@ using MarkerList = std::vector<std::tuple<std::string, int , int>>;
  *  start frame and duration of that segment.
  */
 
-using LayerInfoList = std::vector<std::tuple<std::string, int , int>>;
+using LayerInfoList = std::vector<std::tuple<std::string, int , int, int>>;
 
 
 using ColorFilter = std::function<void(float &r , float &g, float &b)>;
@@ -449,7 +447,7 @@ public:
     const MarkerList& markers() const;
 
     /**
-     *  @brief Returns Layer information{name, inFrame, outFrame} of all the child layers  of the composition.
+     *  @brief Returns Layer information{name, inFrame, outFrame, type} of all the child layers  of the composition.
      *
      *
      *  @return List of Layer Information of the Composition.
@@ -520,8 +518,8 @@ template<> struct MapType<std::integral_constant<Property, Property::TrOpacity>>
 template<> struct MapType<std::integral_constant<Property, Property::TrAnchor>>: Point_Type{};
 template<> struct MapType<std::integral_constant<Property, Property::TrPosition>>: Point_Type{};
 template<> struct MapType<std::integral_constant<Property, Property::TrScale>>: Size_Type{};
-template<> struct MapType<std::integral_constant<Property, Property::TrimStart>>: Float_Type{};
-template<> struct MapType<std::integral_constant<Property, Property::TrimEnd>>: Point_Type{};
+
+
 }  // namespace lotplayer
 
 #endif  // _RLOTTIE_H_

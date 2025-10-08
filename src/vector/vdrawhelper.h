@@ -150,7 +150,7 @@ private:
     size_t          mHeight{0};
     size_t          mBytesPerLine{0};
     size_t          mBytesPerPixel{0};
-    mutable uint8_t *mBuffer{nullptr};
+    mutable uint8_t * mBuffer{nullptr};
 };
 
 struct VGradientData {
@@ -171,7 +171,7 @@ struct VGradientData {
 
 struct VTextureData : public VRasterBuffer {
     uint32_t pixel(int x, int y) const { return *pixelRef(x, y); };
-    uint8_t  alpha() const { return mAlpha; }
+    uint8_t    alpha() const { return mAlpha; }
     void     setAlpha(uint8_t alpha) { mAlpha = alpha; }
     void     setClip(const VRect &clip);
     // clip rect
@@ -256,8 +256,7 @@ inline constexpr int vAlpha(uint32_t c)
     return c >> 24;
 }
 
-static inline uint32_t interpolate_pixel(uint32_t x, uint32_t a, uint32_t y,
-                                         uint32_t b)
+static inline uint32_t interpolate_pixel(uint32_t x, uint32_t a, uint32_t y, uint32_t b)
 {
     uint32_t t = (x & 0xff00ff) * a + (y & 0xff00ff) * b;
     t >>= 8;

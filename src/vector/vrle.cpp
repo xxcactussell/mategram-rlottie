@@ -224,7 +224,7 @@ void VRle::Data::opGeneric(const VRle::Data &aObj, const VRle::Data &bObj,
     mSpans.reserve(a.size() + b.size());
 
     // if two rle are disjoint
-    if (!aObj.bbox().intersects(bObj.bbox())) {
+    if (!aObj.bbox().intersects(aObj.bbox())) {
         if (a.data()[0].y < b.data()[0].y) {
             copy(a.data(), a.size(), mSpans);
             copy(b.data(), b.size(), mSpans);
@@ -502,11 +502,10 @@ void blitSrc(VRle::Span *spans, int count, uint8_t *buffer, int offsetX)
     }
 }
 
-size_t bufferToRle(uint8_t *buffer, int size, int offsetX, int y,
-                   VRle::Span *out)
+size_t bufferToRle(uint8_t *buffer, int size, int offsetX, int y, VRle::Span *out)
 {
     size_t count = 0;
-    uint8_t value = buffer[0];
+    uint8_t  value = buffer[0];
     int    curIndex = 0;
 
     // size = offsetX < 0 ? size + offsetX : size;
@@ -554,7 +553,7 @@ struct SpanMerger {
     using blitter = void (*)(VRle::Span *, int, uint8_t *, int);
     blitter                     _blitter;
     std::array<VRle::Span, 256> _result;
-    std::array<uint8_t, 1024>   _buffer;
+    std::array<uint8_t, 1024>     _buffer;
     VRle::Span *                _aStart{nullptr};
     VRle::Span *                _bStart{nullptr};
 

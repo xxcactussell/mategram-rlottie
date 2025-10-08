@@ -29,6 +29,9 @@
 #include <type_traits>
 #include <utility>
 
+using uint32_t   = uint32_t;
+using uint16_t = uint16_t;
+using uint8_t  = uint8_t;
 
 #if !defined(V_NAMESPACE)
 
@@ -121,10 +124,7 @@ public:
 
     explicit constexpr inline vFlagHelper(uint32_t ai) noexcept : i(int(ai)) {}
     explicit constexpr inline vFlagHelper(short ai) noexcept : i(int(ai)) {}
-    explicit constexpr inline vFlagHelper(uint16_t ai) noexcept
-        : i(int(uint32_t(ai)))
-    {
-    }
+    explicit constexpr inline vFlagHelper(uint16_t ai) noexcept : i(int(uint32_t(ai))) {}
     constexpr inline operator uint32_t() const noexcept { return uint32_t(i); }
 };
 
@@ -236,19 +236,16 @@ public:
 class VColor {
 public:
     VColor() = default;
-    explicit VColor(uint8_t red, uint8_t green, uint8_t blue,
-                    uint8_t alpha = 255) noexcept
-        : a(alpha), r(red), g(green), b(blue)
-    {
-    }
-    inline uint8_t red() const noexcept { return r; }
-    inline uint8_t green() const noexcept { return g; }
-    inline uint8_t blue() const noexcept { return b; }
-    inline uint8_t alpha() const noexcept { return a; }
-    inline void    setRed(uint8_t red) noexcept { r = red; }
-    inline void    setGreen(uint8_t green) noexcept { g = green; }
-    inline void    setBlue(uint8_t blue) noexcept { b = blue; }
-    inline void    setAlpha(uint8_t alpha) noexcept { a = alpha; }
+    explicit VColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) noexcept
+        :a(alpha), r(red), g(green), b(blue){}
+    inline uint8_t  red() const noexcept { return r; }
+    inline uint8_t  green() const noexcept { return g; }
+    inline uint8_t  blue() const noexcept { return b; }
+    inline uint8_t  alpha() const noexcept { return a; }
+    inline void setRed(uint8_t red) noexcept { r = red; }
+    inline void setGreen(uint8_t green) noexcept { g = green; }
+    inline void setBlue(uint8_t blue) noexcept { b = blue; }
+    inline void setAlpha(uint8_t alpha) noexcept { a = alpha; }
     inline bool isOpaque() const { return a == 255; }
     inline bool isTransparent() const { return a == 0; }
     inline bool operator==(const VColor &o) const

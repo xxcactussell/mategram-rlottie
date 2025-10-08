@@ -47,7 +47,7 @@ namespace internal {
 
 using Marker = std::tuple<std::string, int, int>;
 
-using LayerInfo = Marker;
+using LayerInfo = std::tuple<std::string, int, int, int>;
 
 template <typename T>
 inline T lerp(const T &start, const T &end, float t)
@@ -239,23 +239,20 @@ public:
 
     T value(int frameNo) const
     {
-        if (!frames_.empty()) {
-            if (frames_.front().start_ >= frameNo)
-                return frames_.front().value_.start_;
-            if (frames_.back().end_ <= frameNo) return frames_.back().value_.end_;
+        if (frames_.front().start_ >= frameNo)
+            return frames_.front().value_.start_;
+        if (frames_.back().end_ <= frameNo) return frames_.back().value_.end_;
 
-            for (const auto &keyFrame : frames_) {
-                if (frameNo >= keyFrame.start_ && frameNo < keyFrame.end_)
-                    return keyFrame.value(frameNo);
-            }
+        for (const auto &keyFrame : frames_) {
+            if (frameNo >= keyFrame.start_ && frameNo < keyFrame.end_)
+                return keyFrame.value(frameNo);
         }
         return {};
     }
 
     float angle(int frameNo) const
     {
-        if (frames_.empty() ||
-            (frames_.front().start_ >= frameNo) ||
+        if ((frames_.front().start_ >= frameNo) ||
             (frames_.back().end_ <= frameNo))
             return 0;
 
@@ -268,8 +265,6 @@ public:
 
     bool changed(int prevFrame, int curFrame) const
     {
-        if (frames_.empty()) return false;
-
         auto first = frames_.front().start_;
         auto last = frames_.back().end_;
 
@@ -529,6 +524,7 @@ class Composition : public Object {
 public:
     Composition() : Object(Object::Type::Composition) {}
     std::vector<LayerInfo>     layerInfoList() const;
+    model::Layer* layerInfo(const char * name) const;
     const std::vector<Marker> &markers() const { return mMarkers; }
     double                     duration() const
     {
@@ -661,88 +657,90 @@ private:
 };
 
 class Group : public Object {
-public:
-    Group() : Object(Object::Type::Group) {}
-    explicit Group(Object::Type type) : Object(type) {}
+    public:
+        Group() : Object(Object::Type::Group) {}
+        explicit Group(Object::Type type) : Object(type) {}
 
-public:
-    std::vector<Object *> mChildren;
-    Transform *           mTransform{nullptr};
+    public:
+        std::vector<Object *> mChildren;
+        Transform *           mTransform{nullptr};
 };
 
 class Layer : public Group {
-public:
-    enum class Type : uint8_t {
-        Precomp = 0,
-        Solid = 1,
-        Image = 2,
-        Null = 3,
-        Shape = 4,
-        Text = 5
-    };
-    Layer() : Group(Object::Type::Layer) {}
-    bool    hasRoundedCorner() const noexcept { return mHasRoundedCorner; }
-    bool    hasPathOperator() const noexcept { return mHasPathOperator; }
-    bool    hasGradient() const noexcept { return mHasGradient; }
-    bool    hasMask() const noexcept { return mHasMask; }
-    bool    hasRepeater() const noexcept { return mHasRepeater; }
-    int     id() const noexcept { return mId; }
-    int     parentId() const noexcept { return mParentId; }
-    bool    hasParent() const noexcept { return mParentId != -1; }
-    int     inFrame() const noexcept { return mInFrame; }
-    int     outFrame() const noexcept { return mOutFrame; }
-    int     startFrame() const noexcept { return mStartFrame; }
-    Color   solidColor() const noexcept
-    {
-        return mExtra ? mExtra->mSolidColor : Color();
-    }
-    bool    autoOrient() const noexcept { return mAutoOrient; }
-    int     timeRemap(int frameNo) const;
-    VSize   layerSize() const { return mLayerSize; }
-    bool    precompLayer() const { return mLayerType == Type::Precomp; }
-    VMatrix matrix(int frameNo) const
-    {
-        return mTransform ? mTransform->matrix(frameNo, autoOrient())
-                          : VMatrix{};
-    }
-    float opacity(int frameNo) const
-    {
-        return mTransform ? mTransform->opacity(frameNo) : 1.0f;
-    }
-    Asset *asset() const { return mExtra ? mExtra->mAsset : nullptr; }
-    struct Extra {
-        Color               mSolidColor;
-        std::string         mPreCompRefId;
-        Property<float>     mTimeRemap; /* "tm" */
-        Composition *       mCompRef{nullptr};
-        Asset *             mAsset{nullptr};
-        std::vector<Mask *> mMasks;
-    };
+    public:
+        enum class Type : uint8_t {
+            Precomp = 0,
+            Solid = 1,
+            Image = 2,
+            Null = 3,
+            Shape = 4,
+            Text = 5
+        };
+        Layer() : Group(Object::Type::Layer) {}
+        bool    hasRoundedCorner() const noexcept { return mHasRoundedCorner; }
+        bool    hasPathOperator() const noexcept { return mHasPathOperator; }
+        bool    hasGradient() const noexcept { return mHasGradient; }
+        bool    hasMask() const noexcept { return mHasMask; }
+        bool    hasRepeater() const noexcept { return mHasRepeater; }
+        int     id() const noexcept { return mId; }
+        int     parentId() const noexcept { return mParentId; }
+        bool    hasParent() const noexcept { return mParentId != -1; }
+        int     inFrame() const noexcept { return mInFrame; }
+        int     outFrame() const noexcept { return mOutFrame; }
+        int     startFrame() const noexcept { return mStartFrame; }
+        Color   solidColor() const noexcept {
+            return mExtra ? mExtra->mSolidColor : Color();
+        }
+        bool    autoOrient() const noexcept { return mAutoOrient; }
+        int     timeRemap(int frameNo) const;
+        VSize   layerSize() const { return mLayerSize; }
+        bool    precompLayer() const {
+            return true;
+            //return mLayerType == Type::Precomp;
+        }
+        VMatrix matrix(int frameNo) const
+        {
+            return mTransform ? mTransform->matrix(frameNo, autoOrient())
+                              : VMatrix{};
+        }
+        float opacity(int frameNo) const
+        {
+            return mTransform ? mTransform->opacity(frameNo) : 1.0f;
+        }
+        Asset *asset() const { return mExtra ? mExtra->mAsset : nullptr; }
+        struct Extra {
+            Color               mSolidColor;
+            std::string         mPreCompRefId;
+            Property<float>     mTimeRemap; /* "tm" */
+            Composition *       mCompRef{nullptr};
+            Asset *             mAsset{nullptr};
+            std::vector<Mask *> mMasks;
+        };
 
-    Layer::Extra *extra()
-    {
-        if (!mExtra) mExtra = std::make_unique<Layer::Extra>();
-        return mExtra.get();
-    }
+        Layer::Extra *extra()
+        {
+            if (!mExtra) mExtra = std::make_unique<Layer::Extra>();
+            return mExtra.get();
+        }
 
-public:
-    MatteType mMatteType{MatteType::None};
-    Type      mLayerType{Layer::Type::Null};
-    BlendMode mBlendMode{BlendMode::Normal};
-    bool      mHasRoundedCorner{false};
-    bool      mHasPathOperator{false};
-    bool      mHasMask{false};
-    bool      mHasRepeater{false};
-    bool      mHasGradient{false};
-    bool      mAutoOrient{false};
-    VSize     mLayerSize;
-    int       mParentId{-1};  // Lottie the id of the parent in the composition
-    int       mId{-1};        // Lottie the group id  used for parenting.
-    float     mTimeStreatch{1.0f};
-    int       mInFrame{0};
-    int       mOutFrame{0};
-    int       mStartFrame{0};
-    std::unique_ptr<Extra> mExtra{nullptr};
+    public:
+        MatteType mMatteType{MatteType::None};
+        Type      mLayerType{Layer::Type::Null};
+        BlendMode mBlendMode{BlendMode::Normal};
+        bool      mHasRoundedCorner{false};
+        bool      mHasPathOperator{false};
+        bool      mHasMask{false};
+        bool      mHasRepeater{false};
+        bool      mHasGradient{false};
+        bool      mAutoOrient{false};
+        VSize     mLayerSize;
+        int       mParentId{-1};  // Lottie the id of the parent in the composition
+        int       mId{-1};        // Lottie the group id  used for parenting.
+        float     mTimeStreatch{1.0f};
+        int       mInFrame{0};
+        int       mOutFrame{0};
+        int       mStartFrame{0};
+        std::unique_ptr<Extra> mExtra{nullptr};
 };
 
 /**
@@ -1014,20 +1012,6 @@ public:
     };
     enum class TrimType { Simultaneously, Individually };
     Trim() : Object(Object::Type::Trim) {}
-
-    void updateTrimStartValue(float start)
-    {
-        mStart.value() = start;
-    }
-
-    void updateTrimEndValue(VPointF pos)
-    {
-        for (auto &keyFrame : mEnd.animation().frames_) {
-            keyFrame.value_.start_ = pos.x();
-            keyFrame.value_.end_ = pos.y();
-        }
-    }
-
     /*
      * if start > end vector trims the path as a loop ( 2 segment)
      * if start < end vector trims the path without loop ( 1 segment).
@@ -1156,7 +1140,7 @@ std::shared_ptr<model::Composition> loadFromData(std::string jsonData,
                                                  std::string resourcePath,
                                                  ColorFilter filter);
 
-std::shared_ptr<model::Composition> parse(char *str, size_t length, std::string dir_path,
+std::shared_ptr<model::Composition> parse(char *str, std::string dir_path,
                                           ColorFilter filter = {});
 
 }  // namespace model

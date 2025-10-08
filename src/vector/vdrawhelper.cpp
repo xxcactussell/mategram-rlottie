@@ -100,7 +100,7 @@ public:
     }
 
 protected:
-    uint32_t   maxCacheSize() const { return 60; }
+    uint32_t       maxCacheSize() const { return 60; }
     VCacheData addCacheElement(VCacheKey hash_val, const VGradient &gradient)
     {
         if (mCache.size() == maxCacheSize()) {
@@ -528,7 +528,7 @@ static void blend_color(size_t size, const VRle::Span *array, void *userData)
 }
 
 // Signature of Process Object
-//  void Pocess(uint* scratchBuffer, size_t x, size_t y, uint8_t cov)
+//  void Pocess(uint32_t* scratchBuffer, size_t x, size_t y, uint8_t cov)
 template <class Process>
 static inline void process_in_chunk(const VRle::Span *array, size_t size,
                                     Process process)

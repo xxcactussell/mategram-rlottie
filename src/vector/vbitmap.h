@@ -30,7 +30,7 @@ V_BEGIN_NAMESPACE
 
 class VBitmap {
 public:
-    enum class Format : uint8_t {
+    enum class Format: uint8_t {
         Invalid,
         Alpha8,
         ARGB32,
@@ -39,10 +39,8 @@ public:
 
     VBitmap() = default;
     VBitmap(size_t w, size_t h, VBitmap::Format format);
-    VBitmap(uint8_t *data, size_t w, size_t h, size_t bytesPerLine,
-            VBitmap::Format format);
-    void reset(uint8_t *data, size_t w, size_t h, size_t stride,
-               VBitmap::Format format);
+    VBitmap(uint8_t *data, size_t w, size_t h, size_t bytesPerLine, VBitmap::Format format);
+    void reset(uint8_t *data, size_t w, size_t h, size_t stride, VBitmap::Format format);
     void reset(size_t w, size_t h, VBitmap::Format format=Format::ARGB32_Premultiplied);
     size_t          stride() const;
     size_t          width() const;
@@ -50,28 +48,27 @@ public:
     size_t          depth() const;
     VBitmap::Format format() const;
     bool            valid() const;
-    uint8_t *       data();
-    uint8_t *       data() const;
+    uint8_t *         data();
+    uint8_t *         data() const;
     VRect           rect() const;
     VSize           size() const;
-    void            fill(uint32_t pixel);
+    void    fill(uint32_t pixel);
     void    updateLuma();
 private:
     struct Impl {
         std::unique_ptr<uint8_t[]> mOwnData{nullptr};
-        uint8_t *                  mRoData{nullptr};
-        uint32_t                   mWidth{0};
-        uint32_t                   mHeight{0};
-        uint32_t                   mStride{0};
-        uint8_t                    mDepth{0};
+        uint8_t *         mRoData{nullptr};
+        uint32_t            mWidth{0};
+        uint32_t            mHeight{0};
+        uint32_t            mStride{0};
+        uint8_t           mDepth{0};
         VBitmap::Format mFormat{VBitmap::Format::Invalid};
 
         explicit Impl(size_t width, size_t height, VBitmap::Format format)
         {
             reset(width, height, format);
         }
-        explicit Impl(uint8_t *data, size_t w, size_t h, size_t bytesPerLine,
-                      VBitmap::Format format)
+        explicit Impl(uint8_t *data, size_t w, size_t h, size_t bytesPerLine, VBitmap::Format format)
         {
             reset(data, w, h, bytesPerLine, format);
         }
@@ -80,7 +77,7 @@ private:
         size_t  stride() const { return mStride; }
         size_t  width() const { return mWidth; }
         size_t  height() const { return mHeight; }
-        uint8_t *       data() { return mRoData ? mRoData : mOwnData.get(); }
+        uint8_t * data() { return mRoData ? mRoData : mOwnData.get(); }
         VBitmap::Format format() const { return mFormat; }
         void reset(uint8_t *, size_t, size_t, size_t, VBitmap::Format);
         void reset(size_t, size_t, VBitmap::Format);

@@ -207,7 +207,6 @@ private:
     VArenaAlloc                         mAllocator{2048};
     int                                 mCurFrameNo;
     bool                                mKeepAspectRatio{true};
-    bool                                mHasDynamicValue{false};
 };
 
 class Layer {
@@ -240,8 +239,8 @@ public:
     std::vector<LOTMask> &       cmasks() { return mCApiData->mMasks; }
     std::vector<LOTNode *> &     cnodes() { return mCApiData->mCNodeList; }
     const char *                 name() const { return mLayerData->name(); }
-    virtual bool resolveKeyPath(LOTKeyPath &keyPath, uint32_t depth,
-                                LOTVariant &value);
+    virtual bool                 resolveKeyPath(LOTKeyPath &keyPath, uint32_t depth,
+                                                LOTVariant &value);
 
 protected:
     virtual void   preprocessStage(const VRect &clip) = 0;
@@ -320,8 +319,6 @@ public:
     void         buildLayerNode() final;
     bool         resolveKeyPath(LOTKeyPath &keyPath, uint32_t depth,
                                 LOTVariant &value) override;
-    void         render(VPainter *painter, const VRle &mask, const VRle &matteRle,
-                        SurfaceCache &cache) final;
 
 protected:
     void                     preprocessStage(const VRect &clip) final;
@@ -581,16 +578,13 @@ private:
 
 class Trim final : public Object {
 public:
-    explicit Trim(model::Trim *data) : mData(data), mModel(data) {}
+    explicit Trim(model::Trim *data) : mData(data) {}
     void update(int frameNo, const VMatrix &parentMatrix, float parentAlpha,
                 const DirtyFlag &flag) final;
     Object::Type type() const final { return Object::Type::Trim; }
     void         update();
     void         addPathItems(std::vector<Shape *> &list, size_t startOffset);
 
-protected:
-    bool resolveKeyPath(LOTKeyPath &keyPath, uint32_t depth,
-                        LOTVariant &value) final;
 private:
     bool pathDirty() const
     {
@@ -608,8 +602,6 @@ private:
     model::Trim *        mData{nullptr};
     VPathMesure          mPathMesure;
     bool                 mDirty{true};
-
-    model::Filter<model::Trim> mModel;
 };
 
 class Repeater final : public Group {

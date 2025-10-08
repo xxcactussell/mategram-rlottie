@@ -2,11 +2,9 @@ if(LOTTIE_MODULE)
     add_library(rlottie-image-loader SHARED
                 stb_image.cpp
                )
-    if(NOT MSVC)
-        target_compile_options(rlottie-image-loader PRIVATE
-                               -fvisibility=hidden
-                              )
-    endif()
+    target_compile_options(rlottie-image-loader PRIVATE
+                           -fvisibility=hidden
+                          )
 
     get_filename_component(LOTTIE_MODULE_FILENAME ${LOTTIE_MODULE_PATH} NAME)
     get_filename_component(LOTTIE_MODULE_DIR ${LOTTIE_MODULE_PATH} DIRECTORY)

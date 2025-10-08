@@ -1,4 +1,3 @@
-add_subdirectory(zip)
 
 target_sources(rlottie
     PRIVATE
