@@ -1,7 +1,3 @@
-//
-// Created by AmirHossein Aghajari on 8/30/20.
-//
-
 #ifndef AXRLOTTIE_APP_LOTTIE_H
 #define AXRLOTTIE_APP_LOTTIE_H
 
@@ -15,6 +11,10 @@ typedef struct LottieInfo{
         if (decompressBuffer != nullptr) {
             delete[]decompressBuffer;
             decompressBuffer = nullptr;
+        }
+        if (precacheFile != nullptr) {
+            fclose(precacheFile);
+            precacheFile = nullptr;
         }
     }
 
