@@ -768,7 +768,3 @@ jboolean Java_com_aghajari_rlottie_AXrLottieNative_lottie2gif(JNIEnv *env, jclas
     Lottie2Gif lottie2Gif;
     return lottie2Gif.render(info,bitmap,w,h,stride,bgColor,name,delay,bitDepth,dither,frameStart,frameEnd,env,listener);
 }
-
-
-}
-
